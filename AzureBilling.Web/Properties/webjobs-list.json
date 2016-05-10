@@ -3,6 +3,9 @@
   "WebJobs": [
     {
       "filePath": "../AzureBillingAPI.WebJob/AzureBillingAPI.WebJob.csproj"
+    },
+    {
+      "filePath": "../AzureBilling.WebJob/AzureBilling.WebJob.csproj"
     }
   ]
 }

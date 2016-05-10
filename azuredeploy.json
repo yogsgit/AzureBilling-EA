@@ -105,8 +105,16 @@
           "properties": {
             "appSettings": [
               {
-                "name": "someAppSetting",
-                "value": "[parameters('someAppSetting')]"
+                "name": "StorageConnectionString",
+                "value": "[parameters('StorageConnectionString')]"
+              },
+			  {
+                "name": "EA-EnrollmentNumber",
+                "value": "[parameters('EA-EnrollmentNumber')]"
+              },
+			  {
+                "name": "EA-APIAccessKey",
+                "value": "[parameters('EA-APIAccessKey')]"
               }
             ]
           }

@@ -3,13 +3,24 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "siteName": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the web app that you wish to create. Use letters and numbers only."
+      }
     },
     "hostingPlanName": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the App Service plan to use for hosting the web app."
+      }
     },
     "siteLocation": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The hosting location for the site."
+      }
     },
     "sku": {
       "type": "string",
@@ -19,7 +30,10 @@
         "Basic",
         "Standard"
       ],
-      "defaultValue": "Free"
+      "defaultValue": "Free",
+      "metadata": {
+        "description": "The pricing tier for the hosting plan."
+      }
     },
     "workerSize": {
       "type": "string",
@@ -28,19 +42,26 @@
         "1",
         "2"
       ],
-      "defaultValue": "0"
+      "defaultValue": "0",
+      "metadata": {
+        "description": "The instance size of the hosting plan (small, medium, or large)."
+      }
     },
-    "StorageConnectionString": {
+    "EA-EnrollmentNumber": {
       "type": "string",
-      "defaultValue": "DefaultEndpointsProtocol=https;AccountName=[ACCOUNT_NAME];AccountKey=[KEY];"
+      "defaultValue": "Enrollment Number for EA Subscription",
+      "minLength": 1,
+      "metadata": {
+        "description": "Enrollment Number for EA Subscription"
+      }
     },
-	"EA-EnrollmentNumber": {
+    "EA-APIAccessKey": {
       "type": "string",
-      "defaultValue": "Enrollment Number for EA Subscription"
-    },
-	"EA-APIAccessKey": {
-      "type": "string",
-      "defaultValue": "API Access Key for above EnrollmentNumber"
+      "defaultValue": "API Access Key for above EnrollmentNumber",
+      "minLength": 1,
+      "metadata": {
+        "description": "API Access Key for above EnrollmentNumber"
+      }
     },
     "repoUrl": {
       "type": "string"
@@ -64,11 +85,11 @@
   },
   "variables": {
     "apiVersion": "2015-06-15",
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'standardsa')]"
+    "storageAccountName": "[toLower(parameters('siteName'))]"
   },
   "resources": [
     {
-      "apiVersion": "2014-06-01",
+      "apiVersion": "2014-11-01",
       "name": "[parameters('hostingPlanName')]",
       "type": "Microsoft.Web/serverFarms",
       "location": "[parameters('siteLocation')]",
@@ -80,7 +101,7 @@
       }
     },
     {
-      "apiVersion": "2014-06-01",
+      "apiVersion": "2014-11-01",
       "name": "[parameters('siteName')]",
       "type": "Microsoft.Web/Sites",
       "location": "[parameters('siteLocation')]",
@@ -96,37 +117,13 @@
       },
       "resources": [
         {
-          "apiVersion": "2014-04-01",
-          "type": "config",
-          "name": "web",
-          "dependsOn": [
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
-          ],
-          "properties": {
-            "appSettings": [
-              {
-                "name": "StorageConnectionString",
-                "value": "[parameters('StorageConnectionString')]"
-              },
-			  {
-                "name": "EA-EnrollmentNumber",
-                "value": "[parameters('EA-EnrollmentNumber')]"
-              },
-			  {
-                "name": "EA-APIAccessKey",
-                "value": "[parameters('EA-APIAccessKey')]"
-              }
-            ]
-          }
-        },
-        {
-          "apiVersion": "2014-04-01",
+          "apiVersion": "2014-11-01",
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
-          ],
+            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/appSettings')]"
+	       ],
           "properties": {
             "RepoUrl": "[parameters('repoUrl')]",
             "branch": "[parameters('branch')]",
@@ -142,8 +139,22 @@
           },
           "type": "Microsoft.Storage/storageAccounts",
           "dependsOn": [
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
           ]
+        },
+        {
+          "apiVersion": "2014-11-01",
+          "name": "appSettings",
+          "type": "config",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+          ],
+          "properties": {
+            "EA-EnrollmentNumber": "[parameters('EA-EnrollmentNumber')]",
+            "EA-APIAccessKey": "[parameters('EA-APIAccessKey')]",
+            "StorageConnectionString":"[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
+             "API-URL":"[concat('https://',parameters('siteName'),'.azurewebsites.net')]"
+          }
         }
       ]
     }

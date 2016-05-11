@@ -81,13 +81,15 @@ namespace WebApplication4.Controllers
             var aggregateUsage = from us in data
                                  group us by new
                                  {
-                                     MeterCategory = us.MeterCategory,
+                                     Date = us.Day,
+                                     MeterCategory = us.MeterCategory
                                  }
                             into fus
                                  select new
                                  {
                                      y = fus.Sum(x => x.Amount),
                                      name = fus.Key.MeterCategory,
+                                     Date = fus.Key.Date
                                  };
             return Json(aggregateUsage.ToList(), JsonRequestBehavior.AllowGet);
         }

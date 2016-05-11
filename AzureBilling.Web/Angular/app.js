@@ -9,29 +9,16 @@ app.config(['$routeProvider',function ($routeProvider) {
 
     $routeProvider.when('/dash/:monthId?', {
         templateUrl: '/angular/templates/dashboard.html',
-        controller: 'homeCtrl'
+        controller: 'dashboardCtrl'
     });
     $routeProvider.when('/byAccount', {
         templateUrl: '/angular/templates/byAccount.html',
-        controller: 'byAccountCtrl'
+        controller: 'accountsCtrl'
     });
     $routeProvider.when('/byService', {
         templateUrl: '/angular/templates/byServices.html',
-        controller: 'byServicesCtrl'
+        controller: 'servicesCtrl'
     });
-    $routeProvider.when('/signin/:message?', {
-        templateUrl: 'App/SignIn',
-        controller: 'signInCtrl'
-    });
-    $routeProvider.when('/todomanager', {
-        templateUrl: 'App/TodoManager',
-        controller: 'todoManagerCtrl'
-    });
-    $routeProvider.when('/subscriptionDetail', {
-        templateUrl: '/angular/templates/subscription-details.html',
-        controller: 'subscriptionCtrl'
-    });
-
     $routeProvider.otherwise({
         redirectTo: '/dash'
     });

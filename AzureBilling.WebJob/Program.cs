@@ -25,17 +25,18 @@ namespace AzureUsageDataImport
             string month = DateTime.UtcNow.Month < 10 ? "0" + DateTime.UtcNow.Month.ToString() : DateTime.UtcNow.Month.ToString();
             //string month = "04";
             string year = DateTime.UtcNow.Year.ToString();
-            string requesturl = String.Format("https://billingapiaistest.azurewebsites.net/EaUsage/GetUsageData?yyyy={0}&mm={1}",
-                year, month);
+            string baseUrl = System.Configuration.ConfigurationManager.AppSettings["API-URL"];
+            string requesturl = String.Format("{0}/EaUsage/GetUsageData?yyyy={1}&mm={2}",
+               baseUrl, year, month);
 
             DateTime startTime = DateTime.UtcNow;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(requesturl);
-            
+
             // Read Response
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             Console.WriteLine(response.StatusDescription);
             StreamReader reader = new StreamReader(response.GetResponseStream());
-            var jsonString =  reader.ReadToEnd();
+            var jsonString = reader.ReadToEnd();
             DateTime endTime = DateTime.UtcNow;
 
             JToken outer = JToken.Parse(jsonString);

@@ -11,15 +11,6 @@ namespace WebApplication4.Controllers
 {
     public class DataController : Controller
     {
-        public JsonResult Spending()
-        {
-            Random r = new Random();
-            int randomValue1 = (int)r.Next(10, 1000);
-            int randomValue = (int)r.Next(10, randomValue1);
-            int[] array = new int[] { 12* randomValue, 12* randomValue, 34* randomValue, 41* randomValue, 45* randomValue, 30* randomValue };
-            return Json(new { data = array }, JsonRequestBehavior.AllowGet);
-        }
-
         public JsonResult SpendingBySubscription(string monthId="")
         {
 
@@ -30,7 +21,7 @@ namespace WebApplication4.Controllers
 
             var repo = new EntityRepo<EAUsageSubscriptionSummaryEntity>();
             var data = repo.Get(monthId, new List<Tuple<string, string>> { });
-            var array =  data.Select(p => new ExpenseBySubscriptionn { name = p.SubscriptionName, y = p.Amount });
+            var array =  data.Select(p => new { name = p.SubscriptionName, y = p.Amount });
             return Json(array.ToList(), JsonRequestBehavior.AllowGet);
         }
 
@@ -42,7 +33,7 @@ namespace WebApplication4.Controllers
             }
             var repo = new EntityRepo<EAUsageAccountSummaryEntity>();
             var data = repo.Get(monthId, new List<Tuple<string, string>> { });
-            var array = data.Select(p => new ExpenseBySubscriptionn { name = p.AccountName, y = p.Amount  });
+            var array = data.Select(p => new { name = p.AccountName, y = p.Amount  });
             return Json(array.ToList(), JsonRequestBehavior.AllowGet);
         }
 
@@ -102,11 +93,5 @@ namespace WebApplication4.Controllers
             monthId = string.Format("{0}-{1}", year, month);
             return monthId;
         }
-    }
-
-    public class ExpenseBySubscriptionn
-    {
-        public string name { get; set; }
-        public double y { get; set; }
     }
 }

@@ -85,9 +85,9 @@
   },
   "variables": {
     "apiVersion": "2015-06-15",
-    "storageAccountName": "[toLower(parameters('siteName'))]",
+    "storageAccountName": "sDfdfasdf",
     "webSitePubCreds": "[resourceId('Microsoft.Web/sites/config', parameters('siteName'), 'publishingCredentials')]",
-    "jobCollectionName": "[toLower(parameters('siteName'))]"
+    "jobCollectionName": "sdfasdgfasdg"
   },
   "resources": [
     {

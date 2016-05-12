@@ -6,7 +6,7 @@
       "type": "string",
       "minLength": 1,
       "metadata": {
-        "description": "The name of the web app that you wish to create. Use letters and numbers only."
+        "description": "The name of the web app that you wish to create."
       }
     },
     "hostingPlanName": {
@@ -85,13 +85,13 @@
   },
   "variables": {
     "apiVersion": "2015-06-15",
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'standardsa')]",
+    "storageAccountName": "[toLower(parameters('siteName'))]",
     "webSitePubCreds": "[resourceId('Microsoft.Web/sites/config', parameters('siteName'), 'publishingCredentials')]",
-    "jobCollectionName": "testcol"
+    "jobCollectionName": "[toLower(parameters('siteName'))]"
   },
   "resources": [
     {
-      "apiVersion": "2014-06-01",
+      "apiVersion": "2014-11-01",
       "name": "[parameters('hostingPlanName')]",
       "type": "Microsoft.Web/serverFarms",
       "location": "[parameters('siteLocation')]",
@@ -103,7 +103,7 @@
       }
     },
     {
-      "apiVersion": "2014-06-01",
+      "apiVersion": "2014-11-01",
       "name": "[parameters('siteName')]",
       "type": "Microsoft.Web/Sites",
       "location": "[parameters('siteLocation')]",
@@ -119,28 +119,13 @@
       },
       "resources": [
         {
-          "apiVersion": "2014-04-01",
-          "type": "config",
-          "name": "web",
-          "dependsOn": [
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
-          ],
-          "properties": {
-            "appSettings": [
-              {
-                "name": "someAppSetting",
-                "value": "asdasdasd"
-              }
-            ]
-          }
-        },
-        {
-          "apiVersion": "2014-04-01",
+          "apiVersion": "2014-11-01",
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
+            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/appSettings')]",
+            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/connectionStrings')]"
           ],
           "properties": {
             "RepoUrl": "[parameters('repoUrl')]",
@@ -157,66 +142,41 @@
           },
           "type": "Microsoft.Storage/storageAccounts",
           "dependsOn": [
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
           ]
         },
         {
-          "apiVersion": "2014-08-01-preview",
-          "name": "[variables('jobCollectionName')]",
-          "type": "Microsoft.Scheduler/jobCollections",
+          "apiVersion": "2014-11-01",
+          "name": "appSettings",
+          "type": "config",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
           ],
-          "location": "[parameters('siteLocation')]",
           "properties": {
-            "sku": {
-              "name": "standard"
+            "EA-EnrollmentNumber": "[parameters('EA-EnrollmentNumber')]",
+            "EA-APIAccessKey": "[parameters('EA-APIAccessKey')]"
+          }
+        },
+        {
+          "apiVersion": "2014-11-01",
+          "name": "connectionStrings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+          ],
+          "properties": {
+            "AzureWebJobsDashboard": {
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
+              "type": "custom"
             },
-            "quota": {
-              "maxJobCount": "10",
-              "maxRecurrence": {
-                "Frequency": "minute",
-                "interval": "1"
-              }
+            "AzureWebJobsStorage": {
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
+              "type": "custom"
             }
-          },
-          "resources": [
-            {
-              "apiVersion": "2014-08-01-preview",
-              "name": "WebJobTest",
-              "type": "jobs",
-              "dependsOn": [
-                "[resourceId('Microsoft.Scheduler/jobCollections', variables('jobCollectionName'))]"
-              ],
-              "properties": {
-                "startTime": "2015-02-10T00:08:00Z",
-                "action": {
-                  "request": {
-                    "uri": "[concat('https://',reference(resourceId('Microsoft.Web/Sites',parameters('siteName'))).enabledHostNames[1],'/api/triggeredjobs/WebJobTest/run')]",
-                    "method": "POST",
-                    "authentication": {
-                      "type": "Basic",
-                      "username": "[list(variables('webSitePubCreds'), '2014-11-01').properties.publishingUserName]",
-                      "password": "[list(variables('webSitePubCreds'), '2014-11-01').properties.publishingPassword]"
-                    }
-                  },
-                  "type": "http",
-                  "retryPolicy": {
-                    "retryType": "Fixed",
-                    "retryInterval": "PT1M",
-                    "retryCount": 2
-                  }
-                },
-                "state": "enabled",
-                "recurrence": {
-                  "frequency": "minute",
-                  "interval": 1
-                }
-              }
-            }
-          ]
+          }
         }
       ]
     }
   ]
-} 
+}

@@ -191,6 +191,16 @@
               }
             }
           ]
+        },
+        {
+          "apiVersion": "2014-11-01",
+          "name": "appSettings",
+          "type": "config",
+          "dependsOn": [ "[concat('Microsoft.Web/Sites/', parameters('siteName'))]" ],
+          "properties": {
+            "EA-EnrollmentNumber": "[parameters('EA-EnrollmentNumber')]",
+            "EA-APIAccessKey": "[parameters('EA-APIAccessKey')]"
+          }
         }
       ]
     }

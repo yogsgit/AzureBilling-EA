@@ -85,9 +85,9 @@
   },
   "variables": {
     "apiVersion": "2015-06-15",
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'standardsa')]",
+    "storageAccountName": "[toLower(parameters('siteName'))]",
     "webSitePubCreds": "[resourceId('Microsoft.Web/sites/config', parameters('siteName'), 'publishingCredentials')]",
-    "jobCollectionName": "testcol"
+    "jobCollectionName": "[toLower(parameters('siteName'))]"
   },
   "resources": [
     {

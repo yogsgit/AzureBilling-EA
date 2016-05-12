@@ -153,6 +153,58 @@
           "dependsOn": [
             "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
           ]
+        },
+        {
+          "apiVersion": "2014-08-01-preview",
+          "name": "[variables('jobCollectionName')]",
+          "type": "Microsoft.Scheduler/jobCollections",
+          "dependsOn": [ "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]" ],
+          "location": "[parameters('siteLocation')]",
+          "properties": {
+            "sku": {
+              "name": "standard"
+            },
+            "quota": {
+              "maxJobCount": "10",
+              "maxRecurrence": {
+                "Frequency": "minute",
+                "interval": "1"
+              }
+            }
+          },
+          "resources": [
+            {
+              "apiVersion": "2014-08-01-preview",
+              "name": "AzureBillingWebJob",
+              "type": "jobs",
+              "dependsOn": [ "[resourceId('Microsoft.Scheduler/jobCollections', variables('jobCollectionName'))]" ],
+              "properties": {
+                "startTime": "2015-02-10T00:08:00Z",
+                "action": {
+                  "request": {
+                    "uri": "[concat('https://',reference(resourceId('Microsoft.Web/Sites',parameters('siteName'))).enabledHostNames[1],'/api/triggeredjobs/AzureBillingWebJob/run')]",
+                    "method": "POST",
+                    "authentication": {
+                      "type": "Basic",
+                      "username": "[list(variables('webSitePubCreds'), '2014-11-01').properties.publishingUserName]",
+                      "password": "[list(variables('webSitePubCreds'), '2014-11-01').properties.publishingPassword]"
+                    }
+                  },
+                  "type": "http",
+                  "retryPolicy": {
+                    "retryType": "Fixed",
+                    "retryInterval": "PT1M",
+                    "retryCount": 2
+                  }
+                },
+                "state": "enabled",
+                "recurrence": {
+                  "frequency": "minute",
+                  "interval": 15
+                }
+              }
+            }
+          ]
         }
       ]
     }

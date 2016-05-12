@@ -123,9 +123,7 @@
           "dependsOn": [ "[concat('Microsoft.Web/Sites/', parameters('siteName'))]" ],
           "properties": {
             "EA-EnrollmentNumber": "[parameters('EA-EnrollmentNumber')]",
-            "EA-APIAccessKey": "[parameters('EA-APIAccessKey')]",
-            "StorageConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
-            "API-URL": "[concat('https://',parameters('siteName'),'.azurewebsites.net')]"
+            "EA-APIAccessKey": "[parameters('EA-APIAccessKey')]"
           }
         },
         {

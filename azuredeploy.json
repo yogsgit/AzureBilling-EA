@@ -175,7 +175,7 @@
 					"state": "enabled",
 					"recurrence": {
 						"frequency": "minute",
-						"interval": 1
+						"interval": 15
 					}
 				}
 			}]

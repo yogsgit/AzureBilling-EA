@@ -3,24 +3,13 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "siteName": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "The name of the web app that you wish to create. Use letters and numbers only."
-      }
+      "type": "string"
     },
     "hostingPlanName": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "The name of the App Service plan to use for hosting the web app."
-      }
+      "type": "string"
     },
     "siteLocation": {
-      "type": "string",
-      "metadata": {
-        "description": "The hosting location for the site."
-      }
+      "type": "string"
     },
     "sku": {
       "type": "string",
@@ -30,10 +19,7 @@
         "Basic",
         "Standard"
       ],
-      "defaultValue": "Free",
-      "metadata": {
-        "description": "The pricing tier for the hosting plan."
-      }
+      "defaultValue": "Free"
     },
     "workerSize": {
       "type": "string",
@@ -42,26 +28,11 @@
         "1",
         "2"
       ],
-      "defaultValue": "0",
-      "metadata": {
-        "description": "The instance size of the hosting plan (small, medium, or large)."
-      }
+      "defaultValue": "0"
     },
-    "EA-EnrollmentNumber": {
+    "someAppSetting": {
       "type": "string",
-      "defaultValue": "Enrollment Number for EA Subscription",
-      "minLength": 1,
-      "metadata": {
-        "description": "Enrollment Number for EA Subscription"
-      }
-    },
-    "EA-APIAccessKey": {
-      "type": "string",
-      "defaultValue": "API Access Key for above EnrollmentNumber",
-      "minLength": 1,
-      "metadata": {
-        "description": "API Access Key for above EnrollmentNumber"
-      }
+      "defaultValue": "Test App Setting Value"
     },
     "repoUrl": {
       "type": "string"
@@ -85,9 +56,9 @@
   },
   "variables": {
     "apiVersion": "2015-06-15",
-    "storageAccountName": "[toLower(parameters('siteName'))]",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'standardsa')]",
     "webSitePubCreds": "[resourceId('Microsoft.Web/sites/config', parameters('siteName'), 'publishingCredentials')]",
-    "jobCollectionName": "[toLower(parameters('siteName'))]"
+    "jobCollectionName": "testcol"
   },
   "resources": [
     {
@@ -129,7 +100,7 @@
             "appSettings": [
               {
                 "name": "someAppSetting",
-                "value": "asdsd"
+                "value": "[parameters('someAppSetting')]"
               }
             ]
           }
